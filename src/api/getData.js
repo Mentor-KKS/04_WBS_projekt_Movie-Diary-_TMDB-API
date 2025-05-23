@@ -2,7 +2,7 @@ import { endpoint } from "./endpoints.js";
 import { fetchAPI } from "./fetchApi.js";
 import { cleanData } from "./cleanData.js";
 // for testing only
-import sessionStorage from "./sessionStoragePolyfill.js";
+//import sessionStorage from "./sessionStoragePolyfill.js";
 
 /**
  * Retrieves movie data for a given keyword (list) or TMDB movie ID (single movie).

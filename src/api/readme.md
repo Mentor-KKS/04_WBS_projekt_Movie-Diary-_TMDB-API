@@ -13,6 +13,8 @@ This folder contains all logic for interacting with [The Movie Database (TMDB) A
   ├── fetch.js
   ├── genres.js
   ├── getData.js
+  ├── sessionStoragePolyfill.js (optional, for Node/testing)
+  └── testing.js
 ```
 
 ---
@@ -33,6 +35,12 @@ This folder contains all logic for interacting with [The Movie Database (TMDB) A
 
 - **getData.js**  
   Main entry point. Exports `getData(keyword)` which handles caching and returns cleaned movie data.
+
+- **sessionStoragePolyfill.js**  
+  (Optional) Provides a sessionStorage polyfill for Node.js/testing environments.
+
+- **testing.js**  
+  Example usage and test script for development.
 
 ---
 
@@ -78,6 +86,7 @@ getData("12345") // or getData(12345)
 ### 4. Data Caching
 
 - Results are cached in `sessionStorage` to minimize API calls.
+- If you use Node.js, make sure to import and use `sessionStoragePolyfill.js`.
 
 ---
 
@@ -100,10 +109,21 @@ Each movie object returned by `getData` has the following structure:
 
 ---
 
+## Testing
+
+Use `testing.js` to quickly test API calls:
+
+```bash
+node src/api/testing.js
+```
+
+---
+
 ## Notes
 
 - You need a valid TMDB API Bearer token in `endpoints.js` for requests to work.
 - For browser usage, the native `sessionStorage` is used.
+- For Node.js/testing, use the provided polyfill.
 
 ---
 

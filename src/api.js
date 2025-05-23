@@ -1,22 +1,3 @@
-// ONLY FOR TESTING !!! BEFORE PRODUCTION DELETE BOTTOM DELETE BOTTOM DELETE BOTTOM DELETE BOTTOM DELETE BOTTOM DELETE BOTTOM DELETE BOTTOM DELETE BOTTOM DELETE BOTTOM DELETE BOTTOM DELETE BOTTOM DELETE BOTTOM
-// Polyfill for sessionStorage in Node.js (for testing only)
-/* global.sessionStorage = {
-  store: {},
-  getItem(key) {
-    return this.store[key] || null;
-  },
-  setItem(key, value) {
-    this.store[key] = value.toString();
-  },
-  removeItem(key) {
-    delete this.store[key];
-  },
-  clear() {
-    this.store = {};
-  },
-}; */
-// ONLY FOR TESTING !!! BEFORE PRODUCTION DELETE TOP DELETE TOP DELETE TOP DELETE TOP DELETE TOP DELETE TOP DELETE TOP DELETE TOP DELETE TOP DELETE TOP DELETE TOP DELETE TOP
-
 // Api call----- START---------------------------------------------------------
 // Api call----- Variables-----------------------------------------------------
 
@@ -47,6 +28,29 @@ const url = {
   upcoming: "https://api.themoviedb.org/3/movie/upcoming?language=en-GB&page=1",
   // specific movie called by movie tmdb id
   "movie": `https://api.themoviedb.org/3/movie/`,
+};
+
+
+const genres = {
+  28: "Action",
+  12: "Adventure",
+  16: "Animation",
+  35: "Comedy",
+  80: "Crime",
+  99: "Documentary",
+  18: "Drama",
+  10751: "Family",
+  14: "Fantasy",
+  36: "History",
+  27: "Horror",
+  10402: "Music",
+  9648: "Mystery",
+  10749: "Romance",
+  878: "Science Fiction",
+  10770: "TV Movie",
+  53: "Thriller",
+  10752: "War",
+  37: "Western"
 };
 
 // Api call----- Functions-----------------------------------------------------
@@ -102,6 +106,9 @@ async function getData(keyword) {
  *   - id: Number
  *   - title: String
  *   - overview: String
+ *   - release: String (release date)
+ *   - vote: Number (average vote)
+ *   - genre: Array<string> (array of genre names)
  *   - poster: String (image URL)
  *   - backcover: String (image URL)
  */
@@ -110,18 +117,65 @@ function cleanData(rawData) {
     id: movie.id,
     title: movie.title,
     overview: movie.overview,
+    release: movie.release_date,
+    vote: movie.vote_average,
+    genre: findGenre(movie),
     poster: `https://image.tmdb.org/t/p/original${movie.poster_path}`,
     backcover: `https://image.tmdb.org/t/p/original${movie.backdrop_path}`,
   }));
 }
 
+/**
+ * Returns an array of genre names for a given movie object.
+ *
+ * Handles both TMDB API response formats:
+ * - If the movie object has a 'genre_ids' array (array of genre IDs), it maps them to genre names using the 'genres' lookup object.
+ * - If the movie object has a 'genres' array (array of objects with a 'name' property), it extracts the genre names directly.
+ * - If neither is present, returns an empty array.
+ *
+ * @param {Object} movieObject - The movie object from the TMDB API.
+ * @returns {Array<string>} Array of genre names.
+ */
+function findGenre(movieObject) {
+  if (Array.isArray(movieObject.genre_ids)) {
+    return movieObject.genre_ids.map(ID => genres[ID]).filter(Boolean);
+  }
+ 
+  if (Array.isArray(movieObject.genres)) {
+    return movieObject.genres.map(genre => genre.name);
+  }
+ 
+  return [];
+}
+
+
 export { getData};
+
+// ONLY FOR TESTING !!! BEFORE PRODUCTION DELETE BOTTOM DELETE BOTTOM DELETE BOTTOM DELETE BOTTOM DELETE BOTTOM DELETE BOTTOM DELETE BOTTOM DELETE BOTTOM DELETE BOTTOM DELETE BOTTOM DELETE BOTTOM DELETE BOTTOM
+// Polyfill for sessionStorage in Node.js (for testing only)
+/* global.sessionStorage = {
+  store: {},
+  getItem(key) {
+    return this.store[key] || null;
+  },
+  setItem(key, value) {
+    this.store[key] = value.toString();
+  },
+  removeItem(key) {
+    delete this.store[key];
+  },
+  clear() {
+    this.store = {};
+  },
+}; */
+
+// ONLY FOR TESTING !!! BEFORE PRODUCTION DELETE TOP DELETE TOP DELETE TOP DELETE TOP DELETE TOP DELETE TOP DELETE TOP DELETE TOP DELETE TOP DELETE TOP DELETE TOP DELETE TOP
 
 // ONLY FOR TESTING !!! BEFORE PRODUCTION DELETE BOTTOM DELETE BOTTOM DELETE BOTTOM DELETE BOTTOM DELETE BOTTOM DELETE BOTTOM DELETE BOTTOM DELETE BOTTOM DELETE BOTTOM DELETE BOTTOM DELETE BOTTOM DELETE BOTTOM
 
 // Test function, to console log output from getData func
 /* async function testLog() {
-  const data = await getData(398818);
+  const data = await getData("upcoming");
   console.log(data);
 }
 
@@ -178,8 +232,11 @@ testLog(); */
  *     id: Number,
  *     title: String,
  *     overview: String,
- *     poster: String (image URL),
- *     backcover: String (image URL)
+ *     release: String,        // Release date (YYYY-MM-DD)
+ *     vote: Number,           // Average vote
+ *     genre: Array<string>,   // Array of genre names
+ *     poster: String,         // Image URL
+ *     backcover: String       // Image URL
  *   }
  */
 // Api call----- END-----------------------------------------------------------

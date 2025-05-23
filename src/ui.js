@@ -4,7 +4,7 @@ import {
   saveNoteForMovie,
   saveToWatchlist,
 } from "./storage.js";
-import { getData, getMovieDetails } from "./api.js";
+import { getData } from "./api.js";
 
 let currentlyShownMovieId = null;
 
@@ -99,7 +99,7 @@ export async function showMovieCard(movie) {
   currentlyShownMovieId = movie.id;
 
   try {
-    const details = await getMovieDetails(movie.id);
+    const details = await getData(movie.id);
     if (!details) return;
 
     const genres = details.genres?.map((g) => g.name).join(", ") || "Unknown";

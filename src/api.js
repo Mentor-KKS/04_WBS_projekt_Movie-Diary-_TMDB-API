@@ -149,27 +149,8 @@ function findGenre(movieObject) {
 }
 
 
-export { getData};
+export { getData };
 
-// ONLY FOR TESTING !!! BEFORE PRODUCTION DELETE BOTTOM DELETE BOTTOM DELETE BOTTOM DELETE BOTTOM DELETE BOTTOM DELETE BOTTOM DELETE BOTTOM DELETE BOTTOM DELETE BOTTOM DELETE BOTTOM DELETE BOTTOM DELETE BOTTOM
-// Polyfill for sessionStorage in Node.js (for testing only)
-/* global.sessionStorage = {
-  store: {},
-  getItem(key) {
-    return this.store[key] || null;
-  },
-  setItem(key, value) {
-    this.store[key] = value.toString();
-  },
-  removeItem(key) {
-    delete this.store[key];
-  },
-  clear() {
-    this.store = {};
-  },
-}; */
-
-// ONLY FOR TESTING !!! BEFORE PRODUCTION DELETE TOP DELETE TOP DELETE TOP DELETE TOP DELETE TOP DELETE TOP DELETE TOP DELETE TOP DELETE TOP DELETE TOP DELETE TOP DELETE TOP
 
 // ONLY FOR TESTING !!! BEFORE PRODUCTION DELETE BOTTOM DELETE BOTTOM DELETE BOTTOM DELETE BOTTOM DELETE BOTTOM DELETE BOTTOM DELETE BOTTOM DELETE BOTTOM DELETE BOTTOM DELETE BOTTOM DELETE BOTTOM DELETE BOTTOM
 

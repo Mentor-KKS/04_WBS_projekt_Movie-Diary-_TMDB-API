@@ -33,7 +33,7 @@ const options = {
 // different url's for api call (keywords for getData function)
 const url = {
   // authentication test
-  authentication: "https://api.themoviedb.org/3/authentication",
+  //authentication: "https://api.themoviedb.org/3/authentication",
   // discover movies
   discoverMovies:
     "https://api.themoviedb.org/3/discover/movie?include_adult=false&include_video=false&language=en-GB&page=1&sort_by=popularity.desc",
@@ -45,7 +45,7 @@ const url = {
     "https://api.themoviedb.org/3/trending/movie/week?language=en-GB",
   // upcoming movies
   upcoming: "https://api.themoviedb.org/3/movie/upcoming?language=en-GB&page=1",
-  // specific movie called by movie tmdb id (noch nicht fertig)
+  // specific movie called by movie tmdb id
   "movie": `https://api.themoviedb.org/3/movie/`,
 };
 
@@ -73,12 +73,11 @@ function fetchAPI(url) {
 }
 
 /**
- * Retrieves movie data for a given keyword from sessionStorage, or fetches and caches it from the API if not present.
- * Optionally, a movieID can be provided to fetch data for a specific movie.
+ * Retrieves movie data for a given keyword (list) or TMDB movie ID (single movie).
+ * Checks sessionStorage for cached data; if not present, fetches from the API and caches it.
  *
- * @param {'authentication' | 'discoverMovies' | 'trendingMovieDay' | 'trendingMovieWeek' | 'upcoming' | 'movie'} keyword
- *        The type of movie data to retrieve, or "movie" for a specific movie.
- * @param {string|null} [movieID=null] - Optional TMDB movie ID for fetching a specific movie. Only works with the "movie" keyword.
+ * @param {'discoverMovies' | 'trendingMovieDay' | 'trendingMovieWeek' | 'upcoming' | string | number} keyword
+ *        Use a string keyword for lists (e.g., "discoverMovies"), or a TMDB movie ID (string or number) for a single movie.
  * @returns {Promise<Array>} Resolves to an array of cleaned movie objects.
  *          For single movie fetches, the array contains one object.
  */

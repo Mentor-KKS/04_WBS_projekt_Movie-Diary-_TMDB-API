@@ -46,63 +46,65 @@ const url = {
   // upcoming movies
   upcoming: "https://api.themoviedb.org/3/movie/upcoming?language=en-GB&page=1",
   // specific movie called by movie tmdb id (noch nicht fertig)
-  //"movie": "https://api.themoviedb.org/3/movie/398818",
+  "movie": `https://api.themoviedb.org/3/movie/`,
 };
 
 // Api call----- Functions-----------------------------------------------------
 
 /**
- * Fetches data from the given API URL using provided options.
+ * Fetches movie data from the given API endpoint using the provided options.
+ * Handles both array (list) and single object (movie) responses.
  * @param {string} url - The API endpoint to fetch data from.
- * @returns {Promise<Array>} - A promise that resolves to an array of movie results.
+ * @returns {Promise<Array>} Resolves to an array of movie result objects.
+ *          If the API returns a single movie object, it is wrapped in an array.
  */
-
-async function getMovieDetails(movieId) {
-  const url = `https://api.themoviedb.org/3/movie/${movieId}`;
-  try {
-    const res = await fetch(url, options);
-    return await res.json();
-  } catch (err) {
-    console.error("Failed to fetch movie details:", err);
-    return null;
-  }
-}
-
 function fetchAPI(url) {
   return fetch(url, options)
     .then((res) => res.json())
-    .then((res) => res.results)
+    .then((res) => {
+      // If the response has a 'results' array, return it; else, wrap the object in an array
+      if (Array.isArray(res.results)) {
+        return res.results;
+      } else {
+        return [res];
+      }
+    })
     .catch((error) => console.error(error));
 }
 
 /**
- * Retrieves movie data for a given keyword from sessionStorage or fetches it from the API if not cached.
+ * Retrieves movie data for a given keyword from sessionStorage, or fetches and caches it from the API if not present.
+ * Optionally, a movieID can be provided to fetch data for a specific movie.
  *
- * @param {'authentication' | 'discoverMovies' | 'trendingMovieDay' | 'trendingMovieWeek' | 'upcoming'} keyword
- *        The key representing the type of movie data to retrieve. Must be one of:
- *        - "discoverMovies"
- *        - "trendingMovieDay"
- *        - "trendingMovieWeek"
- *        - "upcoming"
- *
- * @returns {Promise<Array>} A promise that resolves to an array of cleaned movie data.
+ * @param {'authentication' | 'discoverMovies' | 'trendingMovieDay' | 'trendingMovieWeek' | 'upcoming' | 'movie'} keyword
+ *        The type of movie data to retrieve, or "movie" for a specific movie.
+ * @param {string|null} [movieID=null] - Optional TMDB movie ID for fetching a specific movie. Only works with the "movie" keyword.
+ * @returns {Promise<Array>} Resolves to an array of cleaned movie objects.
+ *          For single movie fetches, the array contains one object.
  */
 async function getData(keyword) {
   if (!sessionStorage.getItem(keyword)) {
-    const rawMovieData = await fetchAPI(url[keyword]);
+    const isKnownKeyword = keyword in url;
+    const endpoint = isKnownKeyword ? url[keyword] : url["movie"] + keyword;
+
+    const rawMovieData = await fetchAPI(endpoint);
     const cleanMovieData = cleanData(rawMovieData);
+
     sessionStorage.setItem(keyword, JSON.stringify(cleanMovieData));
   }
 
-  const data = JSON.parse(sessionStorage.getItem(keyword));
-
-  return data;
+  return JSON.parse(sessionStorage.getItem(keyword));
 }
 
 /**
- * Cleans raw movie data by extracting and formatting relevant fields.
+ * Transforms raw movie data from the API into a simplified format.
  * @param {Array} rawData - The raw movie data array from the API.
- * @returns {Array} - An array of cleaned movie objects.
+ * @returns {Array} An array of cleaned movie objects with selected fields:
+ *   - id: Number
+ *   - title: String
+ *   - overview: String
+ *   - poster: String (image URL)
+ *   - backcover: String (image URL)
  */
 function cleanData(rawData) {
   return rawData.map((movie) => ({
@@ -114,13 +116,13 @@ function cleanData(rawData) {
   }));
 }
 
-export { getData, getMovieDetails };
+export { getData};
 
 // ONLY FOR TESTING !!! BEFORE PRODUCTION DELETE BOTTOM DELETE BOTTOM DELETE BOTTOM DELETE BOTTOM DELETE BOTTOM DELETE BOTTOM DELETE BOTTOM DELETE BOTTOM DELETE BOTTOM DELETE BOTTOM DELETE BOTTOM DELETE BOTTOM
 
 // Test function, to console log output from getData func
 /* async function testLog() {
-  const data = await getData("trendingMovieWeek");
+  const data = await getData(398818);
   console.log(data);
 }
 
@@ -136,38 +138,49 @@ testLog(); */
  *
  * HOW TO USE getData():
  *
- * Step 1: Call getData() with one of the following keywords:
- *         - "discoverMovies"
- *         - "trendingMovieDay"
- *         - "trendingMovieWeek"
- *         - "upcoming"
+ * 1. Call getData() with one of the following keywords:
+ *    - "discoverMovies"
+ *    - "trendingMovieDay"
+ *    - "trendingMovieWeek"
+ *    - "upcoming"
+ *    - a TMDB movie ID as a string or number (for a single movie)
  *
- * Example:
+ * 2. To fetch a list of movies (e.g., trending this week):
+ *    getData("trendingMovieWeek")
+ *      .then(movies => {
+ *        movies.forEach(movie => {
+ *          console.log("Title:", movie.title);
+ *          console.log("Overview:", movie.overview);
+ *          console.log("Poster URL:", movie.poster);
+ *          console.log("Backdrop URL:", movie.backcover);
+ *        });
+ *      })
+ *      .catch(error => {
+ *        console.error("Failed to load movie data:", error);
+ *      });
  *
- * getData("trendingMovieDay")
- *   .then(movies => {
- *     // Step 2: Work with the returned movie data (already cleaned)
- *     movies.forEach(movie => {
- *       console.log("Title:", movie.title);
- *       console.log("Overview:", movie.overview);
- *       console.log("Poster URL:", movie.poster);
- *       console.log("Backdrop URL:", movie.backcover);
- *     });
- *   })
- *   .catch(error => {
- *     console.error("Failed to load movie data:", error);
- *   });
+ * 3. To fetch details for a specific movie by TMDB ID:
+ *    getData("12345") // or getData(12345)
+ *      .then(movieArr => {
+ *        const movie = movieArr[0];
+ *        console.log("Title:", movie.title);
+ *        console.log("Overview:", movie.overview);
+ *        console.log("Poster URL:", movie.poster);
+ *        console.log("Backdrop URL:", movie.backcover);
+ *      })
+ *      .catch(error => {
+ *        console.error("Failed to load movie details:", error);
+ *      });
  *
  * Notes:
- * - Data is automatically cached in sessionStorage to prevent repeated API calls.
- * - Data is cleaned into a simplified format with the following fields:
- *    {
- *      id: Number,
- *      title: String,
- *      overview: String,
- *      poster: String (image URL),
- *      backcover: String (image URL)
- *    }
- *
+ * - Data is cached in sessionStorage to minimize API calls.
+ * - Each movie object has the following structure:
+ *   {
+ *     id: Number,
+ *     title: String,
+ *     overview: String,
+ *     poster: String (image URL),
+ *     backcover: String (image URL)
+ *   }
  */
 // Api call----- END-----------------------------------------------------------

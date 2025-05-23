@@ -36,10 +36,11 @@ export function saveToWatchlist(movie) {
   list.push({
     id: movie.id,
     title: movie.title,
-    poster_path: movie.poster_path,
-    backdrop_path: movie.backdrop_path,
+    poster: movie.poster,
+    backcover: movie.backcover,
     overview: movie.overview,
     release_date: movie.release_date,
+    status: "to-watch",
   });
 
   localStorage.setItem("watchlist", JSON.stringify(list));

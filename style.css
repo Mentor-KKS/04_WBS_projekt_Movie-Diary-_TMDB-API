@@ -1,0 +1,27 @@
+:root {
+  --primary-color: #01b4e4;
+  --secondary-color: #0d253f;
+  --background-color: #f0f0f0;
+  --background-color-section: #fff;
+  --text-color: #333;
+  --font-family: "roboto", sans-serif;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: var(--font-family);
+  background-color: var(--background-color);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+h1 {
+  font-size: 2.5rem;
+}
+
+a {
+  text-decoration: none;
+}

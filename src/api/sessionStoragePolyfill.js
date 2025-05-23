@@ -1,6 +1,6 @@
 // ONLY FOR TESTING !!!
 // Polyfill for sessionStorage in Node.js (for testing only)
-global.sessionStorage = {
+sessionStorage = {
   store: {},
   getItem(key) {
     return this.store[key] || null;
@@ -16,6 +16,6 @@ global.sessionStorage = {
   },
 };
 
-export default global.sessionStorage;
+export default sessionStorage;
 
 // ONLY FOR TESTING !!!

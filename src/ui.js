@@ -4,7 +4,7 @@ import {
   saveNoteForMovie,
   saveToWatchlist,
 } from "./storage.js";
-import { getData } from "./api.js";
+import { getData } from "./api/getData.js";
 
 let currentlyShownMovieId = null;
 
@@ -147,7 +147,15 @@ export async function showMovieCard(movie) {
     container
       .querySelector(".add-to-watchlist")
       .addEventListener("click", () => {
-        saveToWatchlist(movie);
+        saveToWatchlist({
+          id: movie.id,
+          title: movie.title,
+          overview: movie.overview,
+          release_date: movie.release_date,
+          poster: movie.poster,
+          backcover: movie.backcover,
+          status: "to-watch",
+        });
       });
 
     container.querySelector("#closeDetails").addEventListener("click", () => {

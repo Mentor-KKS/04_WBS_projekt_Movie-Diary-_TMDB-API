@@ -7,7 +7,7 @@ import {
   loadUpcoming,
   setupUpcomingFilters,
 } from "./ui.js";
-import { getData } from "./api.js"; // your modular API functions
+import { getData } from "./api/getData.js"; // your modular API functions
 
 // ==================== Hero Section ====================
 async function loadHeroSection() {

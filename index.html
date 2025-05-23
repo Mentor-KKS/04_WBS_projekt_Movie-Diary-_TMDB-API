@@ -1,47 +1,200 @@
 <!DOCTYPE html>
 <html lang="en">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Index Page</title>
     <link rel="stylesheet" href="style.css" />
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-    <script src="main.js"></script>
-</head>
+    <script defer src="main.js"></script>
+  </head>
 
-<body>
-    <header>
-        <nav class="bg-gray-800 p-4">
-            <div class="container mx-auto">
-                <h1 class="text-white text-2xl">Movie Diary</h1>
-                <p class="text-gray-600">Keep track of your favorite movies!</p>
-            </div>
-        </nav>
+  <body>
+    <header class="max-w-6xl pt-4 mt-4 mx-auto">
+      <nav class="bg-white p-4 flex justify-between items-center shadow-md">
+        <!-- Logo -->
+        <div class="max-w-md">
+          <img
+            src="/Movie-Diary-_TMDB-API/pic/logo_b.png"
+            alt="Movie Diary Logo"
+            class="h-10"
+          />
+        </div>
+        <div class="flex items-center w-full max-w-md mx-6">
+          <form
+            id="searchForm"
+            class="flex w-full max-w-md mx-6 border border-[#01b4e4] focus:outline-none focus:ring-2 focus:ring-[#01b4e4]"
+          >
+            <!-- Search Bar -->
+            <input
+              type="text"
+              id="searchInput"
+              placeholder="Search for movie, tv show, person..."
+              class="w-full px-4 py-2 text-gray-400 font-light bg-white"
+            />
+            <button
+              type="submit"
+              class="bg-[#01b4e4] text-white px-4 py-2 hover:bg-[#029ac6] transition"
+            >
+              <span class="hidden md:inline">Search</span>
+            </button>
+          </form>
+        </div>
+
+        <div class="flex items-center space-x-6 pr-5">
+          <!-- Language Dropdown -->
+          <div class="relative">
+            <button
+              class="text-sm font-medium text-gray-700 hover:text-gray-900"
+            >
+              EN
+            </button>
+          </div>
+
+          <!-- Watchlist Icon -->
+          <a
+            href="journal.html"
+            class="flex items-center text-sm text-gray-800"
+          >
+            <span>My Watchlist</span>
+          </a>
+
+          <!-- User Avatar -->
+          <img
+            src="https://i.pravatar.cc/40"
+            alt="Avatar"
+            class="h-8 w-8 rounded-full object-cover border-2 border-gray-300"
+          />
+
+          <!-- Burger Menu -->
+          <button class="text-gray-800 focus:outline-none">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="h-6 w-6"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M4 6h16M4 12h16M4 18h16"
+              />
+            </svg>
+          </button>
+        </div>
+      </nav>
     </header>
-    <main>
-        <section id="hero" class="bg-gray-200 p-6 rounded-lg mb-6">
-            <h2 class="text-2xl font-semibold mb-2">Welcome to Movie Diary</h2>
-            <p class="text-gray-700">
-                Discover, track, and share your favorite movies with friends.
+
+    <main class="max-w-6xl bg-white mx-auto mt-0">
+      <section id="heroSection" class="grid grid-cols-3 bg-black text-white">
+        <!-- Main Movie (2/3) -->
+        <div
+          id="mainMovie"
+          class="relative col-span-2 h-[576px] bg-cover bg-center shadow-lg overflow-hidden flex items-end"
+        >
+          <div class="bg-black/60 p-6 w-full">
+            <h2 class="text-2xl font-semibold mb-2 text-white" id="mainTitle">
+              Loading...
+            </h2>
+            <p class="text-sm mb-4" id="mainOverview">
+              Please wait while we fetch movie data.
             </p>
-        </section>
+            <button
+              id="addToWatchlistBtn"
+              class="bg-[#01b4e4] hover:bg-[#029ac6] text-white text-sm px-4 py-2 rounded"
+            >
+              + Add to Watchlist
+            </button>
+          </div>
+        </div>
 
-        <section id="search" class="mb-6">
-        </section>
+        <!-- Side Movies (1/3 ) -->
+        <div
+          id="sideMovies"
+          class="grid grid-cols-2 grid-rows-2 h-[576px]"
+        ></div>
+      </section>
 
-        <section id="movie-ranking" class="mb-6">
-            <h2 class="text-2xl font-semibold mb-2">Best Movies this Week</h2>
-        </section>
+      <!-- Movie Ranking Section -->
+      <section id="movie-ranking" class="mb-6 px-8 py-8">
+        <div class="flex items-center gap-5 mb-4">
+          <div class="flex items-center space-x-2">
+            <div class="w-1 h-6 bg-[#01b4e4]"></div>
+            <h2 class="text-xl font-semibold">Trending</h2>
+          </div>
+          <div class="space-x-2">
+            <!-- Button -->
+            <div
+              class="inline-flex rounded-full border-2 border-[#01b4e4] overflow-hidden text-sm font-semibold"
+            >
+              <button
+                id="btnToday"
+                class="px-4 py-1 rounded-full bg-[#01b4e4] text-white transition"
+              >
+                Today
+              </button>
+              <button
+                id="btnWeek"
+                class="px-4 py-1 rounded-full text-[#01b4e4] bg-white transition"
+              >
+                This Week
+              </button>
+            </div>
+          </div>
+        </div>
 
-        <section id="movie-list">
-            <h2 class="text-2xl font-semibold mb-2">Your Movies</h2>
-            <ul id="movies" class="list-disc pl-5"></ul>
-        </section>
+        <!-- Scrollable Movie Row -->
+        <div id="trendingMovies" class="flex overflow-x-auto space-x-5 pt-8">
+          <!-- Movie cards -->
+        </div>
+      </section>
+
+      <!--Movie Card-->
+      <section
+        id="movieCardView"
+        class="max-w-6xl mx-auto mt-10 mb-10 max-h-0 opacity-0 overflow-hidden transition-all duration-500 ease-in-out"
+      ></section>
+
+      <!--Upcoming-->
+      <section id="upcoming-section" class="mb-10 px-8">
+        <div class="flex items-center justify-between mb-4">
+          <div class="flex items-center space-x-2">
+            <div class="w-1 h-6 bg-[#01b4e4]"></div>
+            <h2 class="text-xl font-semibold">Upcoming</h2>
+          </div>
+
+          <div class="space-x-2 text-sm">
+            <button
+              data-filter="all"
+              class="filter-upcoming px-3 py-1 rounded border border-[#01b4e4] text-[#01b4e4] bg-white"
+            >
+              All
+            </button>
+            <button
+              data-filter="this-month"
+              class="filter-upcoming px-3 py-1 rounded border border-[#01b4e4] text-[#01b4e4] bg-white"
+            >
+              This Month
+            </button>
+            <button
+              data-filter="next-month"
+              class="filter-upcoming px-3 py-1 rounded border border-[#01b4e4] text-[#01b4e4] bg-white"
+            >
+              Next Month
+            </button>
+          </div>
+        </div>
+
+        <div
+          id="upcomingMovies"
+          class="flex overflow-x-auto space-x-5 pt-4"
+        ></div>
+      </section>
     </main>
     <footer class="bg-gray-800 text-white text-center p-4 mt-6">
-        <p>&copy; 2023 Movie Diary. All rights reserved.</p>
+      <p>&copy; 2023 Movie Diary. All rights reserved.</p>
     </footer>
-</body>
-
+  </body>
 </html>

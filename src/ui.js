@@ -4,7 +4,7 @@ import {
   saveNoteForMovie,
   saveToWatchlist,
 } from "./storage.js";
-import { API_KEY, IMAGE_BASE } from "./config.js"; // Maybe in the main file
+import { getData, getMovieDetails } from "./api.js";
 
 let currentlyShownMovieId = null;
 
@@ -16,7 +16,7 @@ export function renderMainMovie(movie) {
   const overviewEl = document.querySelector("#mainOverview");
   const addBtn = document.querySelector("#addToWatchlistBtn");
 
-  mainMovie.style.backgroundImage = `url(${IMAGE_BASE}${movie.backdrop_path})`;
+  mainMovie.style.backgroundImage = `url(${movie.backcover})`;
   titleEl.textContent = movie.title;
   overviewEl.textContent = movie.overview;
 
@@ -33,7 +33,7 @@ export function renderSideMovies(movies) {
     const thumb = document.createElement("div");
     thumb.className =
       "aspect-[2/3] w-full overflow-hidden shadow-lg cursor-pointer bg-cover bg-center";
-    thumb.style.backgroundImage = `url(${IMAGE_BASE}${movie.poster_path})`;
+    thumb.style.backgroundImage = `url(${movie.poster})`;
     thumb.title = movie.title;
 
     thumb.addEventListener("click", () => renderMainMovie(movie));
@@ -68,13 +68,11 @@ export function renderTrendingCards(movies) {
       "movie-card relative min-w-[192px] max-w-[192px] flex-shrink-0 transition-transform duration-300 hover:scale-[1.03]";
 
     card.innerHTML = `
-      <img src="${IMAGE_BASE + movie.poster_path}" alt="${movie.title}"
-        class="h-[276px] w-full object-cover rounded shadow cursor-pointer" />
-      <h3 class="mt-2 text-xs pl-2 font-semibold">${movie.title}</h3>
-      <p class="text-xs pl-2 text-gray-300">${
-        movie.release_date || "Unknown"
-      }</p>
-    `;
+          <img src="${movie.poster}" alt="${movie.title}"
+            class="h-[276px] w-full object-cover rounded shadow cursor-pointer" />
+          <h3 class="mt-2 text-xs pl-2 font-semibold">${movie.title}</h3>
+          <p class="text-xs pl-2 text-gray-300">Unknown</p>
+        `;
 
     const poster = card.querySelector("img");
     poster.addEventListener("click", () => {
@@ -91,64 +89,55 @@ export async function showMovieCard(movie) {
   if (currentlyShownMovieId === movie.id) {
     container.classList.remove("max-h-[1000px]", "opacity-100");
     container.classList.add("max-h-0", "opacity-0");
-
     setTimeout(() => {
       container.innerHTML = "";
       currentlyShownMovieId = null;
     }, 400);
-
     return;
   }
 
   currentlyShownMovieId = movie.id;
 
   try {
-    const res = await fetch(
-      `https://api.themoviedb.org/3/movie/${movie.id}?api_key=${API_KEY}&language=en-US`
-    ); // Linus this must be changed to the correct API endpoint
-    const details = await res.json();
+    const details = await getMovieDetails(movie.id);
+    if (!details) return;
 
     const genres = details.genres?.map((g) => g.name).join(", ") || "Unknown";
     const runtime = details.runtime ? `${details.runtime} min` : "Unknown";
     const rating = details.vote_average?.toFixed(1) || "N/A";
 
     container.innerHTML = `
-      <div class="bg-cover bg-center rounded-lg shadow-lg overflow-hidden relative text-white p-8 transition-all duration-500 ease-in-out" style="background-image: url('${
-        IMAGE_BASE + movie.backdrop_path
-      }')">
-        <div class="bg-black/60 p-6 rounded-lg flex flex-col md:flex-row gap-8 items-start">
-          <img src="${IMAGE_BASE + movie.poster_path}" alt="${
+          <div class="bg-cover bg-center rounded-lg shadow-lg overflow-hidden relative text-white p-8 transition-all duration-500 ease-in-out" style="background-image: url('${
+            movie.backcover
+          }')">
+            <div class="bg-black/60 p-6 rounded-lg flex flex-col md:flex-row gap-8 items-start">
+              <img src="${movie.poster}" alt="${
       movie.title
     }" class="w-[180px] rounded shadow-lg">
-          <div class="flex-1 space-y-4">
-            <div class="flex justify-between items-start">
-              <h2 class="text-3xl font-bold">${
-                movie.title
-              } <span class="text-gray-300">(${
-      movie.release_date?.split("-")[0]
-    })</span></h2>
-              <button class="text-3xl leading-none hover:text-white" id="closeDetails">&times;</button>
+              <div class="flex-1 space-y-4">
+                <div class="flex justify-between items-start">
+                  <h2 class="text-3xl font-bold">${movie.title}</h2>
+                  <button class="text-3xl leading-none hover:text-white" id="closeDetails">&times;</button>
+                </div>
+                <p class="text-sm text-gray-300">Genres: <span class="text-white">${genres}</span> • Runtime: <span class="text-white">${runtime}</span> • Rating: <span class="text-white">${rating}</span></p>
+                <p class="text-sm italic text-gray-300 pt-2">Overview</p>
+                <p class="text-sm text-white">${
+                  movie.overview || "No overview available."
+                }</p>
+                <div class="mt-4">
+                  <label class="block text-sm font-medium text-white">Note:</label>
+                  <textarea class="note-input w-full p-2 border rounded resize-none text-black bg-white/80" rows="4" placeholder="Write a note...">${
+                    getNoteForMovie(movie.id) || ""
+                  }</textarea>
+                </div>
+                <button class="add-to-watchlist bg-[#01b4e4] text-white px-4 py-2 rounded hover:bg-[#0199c5] mt-4">+ Add to Watchlist</button>
+              </div>
             </div>
-            <p class="text-sm text-gray-300">Genres: <span class="text-white">${genres}</span> • Runtime: <span class="text-white">${runtime}</span> • Rating: <span class="text-white">${rating}</span></p>
-            <p class="text-sm italic text-gray-300 pt-2">Overview</p>
-            <p class="text-sm text-white">${
-              movie.overview || "No overview available."
-            }</p>
-            <div class="mt-4">
-              <label class="block text-sm font-medium text-white">Note:</label>
-              <textarea class="note-input w-full p-2 border rounded resize-none text-black bg-white/80" rows="4" placeholder="Write a note...">${
-                getNoteForMovie(movie.id) || ""
-              }</textarea>
-            </div>
-            <button class="add-to-watchlist bg-[#01b4e4] text-white px-4 py-2 rounded hover:bg-[#0199c5] mt-4">+ Add to Watchlist</button>
           </div>
-        </div>
-      </div>
-    `;
+        `;
 
     container.classList.remove("max-h-0", "opacity-0");
     container.classList.add("max-h-[1000px]", "opacity-100");
-
     container.scrollIntoView({ behavior: "smooth" });
 
     container.querySelector(".note-input").addEventListener("input", (e) => {
@@ -164,7 +153,6 @@ export async function showMovieCard(movie) {
     container.querySelector("#closeDetails").addEventListener("click", () => {
       container.classList.remove("max-h-[1000px]", "opacity-100");
       container.classList.add("max-h-0", "opacity-0");
-
       setTimeout(() => {
         container.innerHTML = "";
         currentlyShownMovieId = null;
@@ -179,39 +167,21 @@ export async function loadUpcoming(filter = "all") {
   const container = document.querySelector("#upcomingMovies");
   container.innerHTML = "";
 
-  const storageKey = "upcoming_all";
-  let movies;
-
-  const cached = sessionStorage.getItem(storageKey);
-  if (cached) {
-    movies = JSON.parse(cached);
-  } else {
-    try {
-      const res = await fetch(
-        `https://api.themoviedb.org/3/movie/upcoming?api_key=${API_KEY}&language=en-US&page=1` // Linus this must be changed to the correct API endpoint too
-      );
-      const data = await res.json();
-      movies = data.results;
-      sessionStorage.setItem(storageKey, JSON.stringify(movies));
-    } catch (err) {
-      console.error("Error loading upcoming movies:", err);
-      return;
-    }
-  }
+  const allMovies = await getData("upcoming");
 
   const now = new Date();
   const thisMonth = now.getMonth();
   const nextMonth = (thisMonth + 1) % 12;
 
-  let filteredMovies = movies;
+  let filteredMovies = allMovies;
 
   if (filter === "this-month") {
-    filteredMovies = movies.filter((movie) => {
+    filteredMovies = allMovies.filter((movie) => {
       const date = new Date(movie.release_date);
       return date.getMonth() === thisMonth;
     });
   } else if (filter === "next-month") {
-    filteredMovies = movies.filter((movie) => {
+    filteredMovies = allMovies.filter((movie) => {
       const date = new Date(movie.release_date);
       return date.getMonth() === nextMonth;
     });
@@ -222,16 +192,14 @@ export async function loadUpcoming(filter = "all") {
     card.className = "min-w-[192px] max-w-[192px] flex-shrink-0";
 
     card.innerHTML = `
-      <img src="${IMAGE_BASE + movie.poster_path}" alt="${movie.title}"
-        class="h-[276px] w-full object-cover rounded shadow" />
-      <h3 class="mt-2 text-xs font-semibold pl-2">${movie.title}</h3>
-      <p class="text-xs text-gray-400 pl-2">${
-        movie.release_date || "Unknown"
-      }</p>
-      <button class="add-to-watchlist bg-[#01b4e4] text-white text-xs px-3 py-1 mt-2 ml-2 rounded hover:bg-[#0199c5]">
-        + Add to Watchlist
-      </button>
-    `;
+          <img src="${movie.poster}" alt="${movie.title}"
+            class="h-[276px] w-full object-cover rounded shadow" />
+          <h3 class="mt-2 text-xs font-semibold pl-2">${movie.title}</h3>
+          <p class="text-xs text-gray-400 pl-2">${
+            movie.release_date || "Unknown"
+          }</p>
+          <button class="add-to-watchlist bg-[#01b4e4] text-white text-xs px-3 py-1 mt-2 ml-2 rounded hover:bg-[#0199c5]">+ Add to Watchlist</button>
+        `;
 
     card.querySelector(".add-to-watchlist").addEventListener("click", () => {
       saveToWatchlist(movie);

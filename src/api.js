@@ -56,6 +56,18 @@ const url = {
  * @param {string} url - The API endpoint to fetch data from.
  * @returns {Promise<Array>} - A promise that resolves to an array of movie results.
  */
+
+async function getMovieDetails(movieId) {
+  const url = `https://api.themoviedb.org/3/movie/${movieId}`;
+  try {
+    const res = await fetch(url, options);
+    return await res.json();
+  } catch (err) {
+    console.error("Failed to fetch movie details:", err);
+    return null;
+  }
+}
+
 function fetchAPI(url) {
   return fetch(url, options)
     .then((res) => res.json())
@@ -101,6 +113,8 @@ function cleanData(rawData) {
     backcover: `https://image.tmdb.org/t/p/original${movie.backdrop_path}`,
   }));
 }
+
+export { getData, getMovieDetails };
 
 // ONLY FOR TESTING !!! BEFORE PRODUCTION DELETE BOTTOM DELETE BOTTOM DELETE BOTTOM DELETE BOTTOM DELETE BOTTOM DELETE BOTTOM DELETE BOTTOM DELETE BOTTOM DELETE BOTTOM DELETE BOTTOM DELETE BOTTOM DELETE BOTTOM
 

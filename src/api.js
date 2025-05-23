@@ -53,13 +53,22 @@ const url = {
 
 /**
  * Fetches movie data from the given API endpoint using the provided options.
+ * Handles both array (list) and single object (movie) responses.
  * @param {string} url - The API endpoint to fetch data from.
- * @returns {Promise<Array>} Resolves to an array of movie results from the API.
+ * @returns {Promise<Array>} Resolves to an array of movie result objects.
+ *          If the API returns a single movie object, it is wrapped in an array.
  */
 function fetchAPI(url) {
   return fetch(url, options)
     .then((res) => res.json())
-    .then((res) => res.results)
+    .then((res) => {
+      // If the response has a 'results' array, return it; else, wrap the object in an array
+      if (Array.isArray(res.results)) {
+        return res.results;
+      } else {
+        return [res];
+      }
+    })
     .catch((error) => console.error(error));
 }
 
@@ -68,15 +77,19 @@ function fetchAPI(url) {
  * Optionally, a movieID can be provided to fetch data for a specific movie.
  *
  * @param {'authentication' | 'discoverMovies' | 'trendingMovieDay' | 'trendingMovieWeek' | 'upcoming' | 'movie'} keyword
- *        The type of movie data to retrieve.
- * @param {string|null} [movieID=null] - Optional TMDB movie ID for fetching a specific movie. Only Works with the movie keyword
+ *        The type of movie data to retrieve, or "movie" for a specific movie.
+ * @param {string|null} [movieID=null] - Optional TMDB movie ID for fetching a specific movie. Only works with the "movie" keyword.
  * @returns {Promise<Array>} Resolves to an array of cleaned movie objects.
+ *          For single movie fetches, the array contains one object.
  */
-async function getData(keyword, movieID = null) {
+async function getData(keyword) {
   if (!sessionStorage.getItem(keyword)) {
-    const endpoint = movieID == null ? url[keyword] : url[keyword] + movieID;
+    const isKnownKeyword = keyword in url;
+    const endpoint = isKnownKeyword ? url[keyword] : url["movie"] + keyword;
+
     const rawMovieData = await fetchAPI(endpoint);
     const cleanMovieData = cleanData(rawMovieData);
+
     sessionStorage.setItem(keyword, JSON.stringify(cleanMovieData));
   }
 
@@ -86,7 +99,12 @@ async function getData(keyword, movieID = null) {
 /**
  * Transforms raw movie data from the API into a simplified format.
  * @param {Array} rawData - The raw movie data array from the API.
- * @returns {Array} An array of cleaned movie objects with selected fields.
+ * @returns {Array} An array of cleaned movie objects with selected fields:
+ *   - id: Number
+ *   - title: String
+ *   - overview: String
+ *   - poster: String (image URL)
+ *   - backcover: String (image URL)
  */
 function cleanData(rawData) {
   return rawData.map((movie) => ({
@@ -104,7 +122,7 @@ export { getData};
 
 // Test function, to console log output from getData func
 /* async function testLog() {
-  const data = await getData("trendingMovieWeek");
+  const data = await getData(398818);
   console.log(data);
 }
 
@@ -125,7 +143,7 @@ testLog(); */
  *    - "trendingMovieDay"
  *    - "trendingMovieWeek"
  *    - "upcoming"
- *    - "movie" (requires a movie ID as the second argument)
+ *    - a TMDB movie ID as a string or number (for a single movie)
  *
  * 2. To fetch a list of movies (e.g., trending this week):
  *    getData("trendingMovieWeek")
@@ -142,7 +160,7 @@ testLog(); */
  *      });
  *
  * 3. To fetch details for a specific movie by TMDB ID:
- *    getData("movie", "12345")
+ *    getData("12345") // or getData(12345)
  *      .then(movieArr => {
  *        const movie = movieArr[0];
  *        console.log("Title:", movie.title);

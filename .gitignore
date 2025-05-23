@@ -1,0 +1,3 @@
+#Ignore testing files for api (LinusCode)
+src/api/testing.js
+src/api/sessionStoragePolyfill.js

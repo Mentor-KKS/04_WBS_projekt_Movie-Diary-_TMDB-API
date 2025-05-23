@@ -46,28 +46,16 @@ const url = {
   // upcoming movies
   upcoming: "https://api.themoviedb.org/3/movie/upcoming?language=en-GB&page=1",
   // specific movie called by movie tmdb id (noch nicht fertig)
-  //"movie": "https://api.themoviedb.org/3/movie/398818",
+  "movie": `https://api.themoviedb.org/3/movie/`,
 };
 
 // Api call----- Functions-----------------------------------------------------
 
 /**
- * Fetches data from the given API URL using provided options.
+ * Fetches movie data from the given API endpoint using the provided options.
  * @param {string} url - The API endpoint to fetch data from.
- * @returns {Promise<Array>} - A promise that resolves to an array of movie results.
+ * @returns {Promise<Array>} Resolves to an array of movie results from the API.
  */
-
-async function getMovieDetails(movieId) {
-  const url = `https://api.themoviedb.org/3/movie/${movieId}`;
-  try {
-    const res = await fetch(url, options);
-    return await res.json();
-  } catch (err) {
-    console.error("Failed to fetch movie details:", err);
-    return null;
-  }
-}
-
 function fetchAPI(url) {
   return fetch(url, options)
     .then((res) => res.json())
@@ -76,33 +64,29 @@ function fetchAPI(url) {
 }
 
 /**
- * Retrieves movie data for a given keyword from sessionStorage or fetches it from the API if not cached.
+ * Retrieves movie data for a given keyword from sessionStorage, or fetches and caches it from the API if not present.
+ * Optionally, a movieID can be provided to fetch data for a specific movie.
  *
- * @param {'authentication' | 'discoverMovies' | 'trendingMovieDay' | 'trendingMovieWeek' | 'upcoming'} keyword
- *        The key representing the type of movie data to retrieve. Must be one of:
- *        - "discoverMovies"
- *        - "trendingMovieDay"
- *        - "trendingMovieWeek"
- *        - "upcoming"
- *
- * @returns {Promise<Array>} A promise that resolves to an array of cleaned movie data.
+ * @param {'authentication' | 'discoverMovies' | 'trendingMovieDay' | 'trendingMovieWeek' | 'upcoming' | 'movie'} keyword
+ *        The type of movie data to retrieve.
+ * @param {string|null} [movieID=null] - Optional TMDB movie ID for fetching a specific movie. Only Works with the movie keyword
+ * @returns {Promise<Array>} Resolves to an array of cleaned movie objects.
  */
-async function getData(keyword) {
+async function getData(keyword, movieID = null) {
   if (!sessionStorage.getItem(keyword)) {
-    const rawMovieData = await fetchAPI(url[keyword]);
+    const endpoint = movieID == null ? url[keyword] : url[keyword] + movieID;
+    const rawMovieData = await fetchAPI(endpoint);
     const cleanMovieData = cleanData(rawMovieData);
     sessionStorage.setItem(keyword, JSON.stringify(cleanMovieData));
   }
 
-  const data = JSON.parse(sessionStorage.getItem(keyword));
-
-  return data;
+  return JSON.parse(sessionStorage.getItem(keyword));
 }
 
 /**
- * Cleans raw movie data by extracting and formatting relevant fields.
+ * Transforms raw movie data from the API into a simplified format.
  * @param {Array} rawData - The raw movie data array from the API.
- * @returns {Array} - An array of cleaned movie objects.
+ * @returns {Array} An array of cleaned movie objects with selected fields.
  */
 function cleanData(rawData) {
   return rawData.map((movie) => ({
@@ -114,7 +98,7 @@ function cleanData(rawData) {
   }));
 }
 
-export { getData, getMovieDetails };
+export { getData};
 
 // ONLY FOR TESTING !!! BEFORE PRODUCTION DELETE BOTTOM DELETE BOTTOM DELETE BOTTOM DELETE BOTTOM DELETE BOTTOM DELETE BOTTOM DELETE BOTTOM DELETE BOTTOM DELETE BOTTOM DELETE BOTTOM DELETE BOTTOM DELETE BOTTOM
 
@@ -136,38 +120,49 @@ testLog(); */
  *
  * HOW TO USE getData():
  *
- * Step 1: Call getData() with one of the following keywords:
- *         - "discoverMovies"
- *         - "trendingMovieDay"
- *         - "trendingMovieWeek"
- *         - "upcoming"
+ * 1. Call getData() with one of the following keywords:
+ *    - "discoverMovies"
+ *    - "trendingMovieDay"
+ *    - "trendingMovieWeek"
+ *    - "upcoming"
+ *    - "movie" (requires a movie ID as the second argument)
  *
- * Example:
+ * 2. To fetch a list of movies (e.g., trending this week):
+ *    getData("trendingMovieWeek")
+ *      .then(movies => {
+ *        movies.forEach(movie => {
+ *          console.log("Title:", movie.title);
+ *          console.log("Overview:", movie.overview);
+ *          console.log("Poster URL:", movie.poster);
+ *          console.log("Backdrop URL:", movie.backcover);
+ *        });
+ *      })
+ *      .catch(error => {
+ *        console.error("Failed to load movie data:", error);
+ *      });
  *
- * getData("trendingMovieDay")
- *   .then(movies => {
- *     // Step 2: Work with the returned movie data (already cleaned)
- *     movies.forEach(movie => {
- *       console.log("Title:", movie.title);
- *       console.log("Overview:", movie.overview);
- *       console.log("Poster URL:", movie.poster);
- *       console.log("Backdrop URL:", movie.backcover);
- *     });
- *   })
- *   .catch(error => {
- *     console.error("Failed to load movie data:", error);
- *   });
+ * 3. To fetch details for a specific movie by TMDB ID:
+ *    getData("movie", "12345")
+ *      .then(movieArr => {
+ *        const movie = movieArr[0];
+ *        console.log("Title:", movie.title);
+ *        console.log("Overview:", movie.overview);
+ *        console.log("Poster URL:", movie.poster);
+ *        console.log("Backdrop URL:", movie.backcover);
+ *      })
+ *      .catch(error => {
+ *        console.error("Failed to load movie details:", error);
+ *      });
  *
  * Notes:
- * - Data is automatically cached in sessionStorage to prevent repeated API calls.
- * - Data is cleaned into a simplified format with the following fields:
- *    {
- *      id: Number,
- *      title: String,
- *      overview: String,
- *      poster: String (image URL),
- *      backcover: String (image URL)
- *    }
- *
+ * - Data is cached in sessionStorage to minimize API calls.
+ * - Each movie object has the following structure:
+ *   {
+ *     id: Number,
+ *     title: String,
+ *     overview: String,
+ *     poster: String (image URL),
+ *     backcover: String (image URL)
+ *   }
  */
 // Api call----- END-----------------------------------------------------------

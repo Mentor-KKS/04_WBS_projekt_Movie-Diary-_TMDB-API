@@ -1,8 +1,10 @@
 // ==================== Imports ====================
 import {
+  toggleWatchlist,
+  updateWatchlistButton,
+  isInWatchlist,
   getNoteForMovie,
   saveNoteForMovie,
-  saveToWatchlist,
 } from "./storage.js";
 import { getData } from "./api/getData.js";
 
@@ -10,7 +12,7 @@ let currentlyShownMovieId = null;
 
 // ==================== UI Elements ====================
 
-export function renderMainMovie(movie) {
+function renderMainMovie(movie) {
   const mainMovie = document.querySelector("#mainMovie");
   const titleEl = document.querySelector("#mainTitle");
   const overviewEl = document.querySelector("#mainOverview");
@@ -22,10 +24,12 @@ export function renderMainMovie(movie) {
 
   const newBtn = addBtn.cloneNode(true);
   addBtn.parentNode.replaceChild(newBtn, addBtn);
-  newBtn.addEventListener("click", () => saveToWatchlist(movie));
+
+  updateWatchlistButton(movie.id, newBtn);
+  newBtn.addEventListener("click", () => toggleWatchlist(movie, newBtn));
 }
 
-export function renderSideMovies(movies) {
+function renderSideMovies(movies) {
   const sideContainer = document.querySelector("#sideMovies");
   sideContainer.innerHTML = "";
 
@@ -41,7 +45,7 @@ export function renderSideMovies(movies) {
   });
 }
 
-export function activateButton(period) {
+function activateButton(period) {
   const btnToday = document.querySelector("#btnToday");
   const btnWeek = document.querySelector("#btnWeek");
 
@@ -58,7 +62,7 @@ export function activateButton(period) {
   }
 }
 
-export function renderTrendingCards(movies) {
+function renderTrendingCards(movies) {
   const trendingContainer = document.querySelector("#trendingMovies");
   trendingContainer.innerHTML = "";
 
@@ -68,22 +72,27 @@ export function renderTrendingCards(movies) {
       "movie-card relative min-w-[192px] max-w-[192px] flex-shrink-0 transition-transform duration-300 hover:scale-[1.03]";
 
     card.innerHTML = `
-          <img src="${movie.poster}" alt="${movie.title}"
-            class="h-[276px] w-full object-cover rounded shadow cursor-pointer" />
-          <h3 class="mt-2 text-xs pl-2 font-semibold">${movie.title}</h3>
-          <p class="text-xs pl-2 text-gray-300">Unknown</p>
-        `;
+      <img src="${movie.poster}" alt="${movie.title}"
+        class="h-[276px] w-full object-cover rounded shadow cursor-pointer" />
+      <h3 class="mt-2 text-xs pl-2 font-semibold">${movie.title}</h3>
+      <p class="text-xs pl-2 text-gray-300">${movie.release}</p>
+    `;
 
     const poster = card.querySelector("img");
-    poster.addEventListener("click", () => {
-      showMovieCard(movie);
-    });
+    poster.addEventListener("click", () => showMovieCard(movie));
 
     trendingContainer.appendChild(card);
   });
 }
 
-export async function showMovieCard(movie) {
+function toggleWatchIcon(button, movie) {
+  const isSaved = isInWatchlist(movie.id);
+  button.innerHTML = isSaved ? "✓" : "+";
+  button.classList.remove("bg-[#01b4e4]", "bg-[#90cea1]");
+  button.classList.add(isSaved ? "bg-[#90cea1]" : "bg-[#01b4e4]");
+}
+
+async function showMovieCard(movie) {
   const container = document.querySelector("#movieCardView");
 
   if (currentlyShownMovieId === movie.id) {
@@ -99,42 +108,50 @@ export async function showMovieCard(movie) {
   currentlyShownMovieId = movie.id;
 
   try {
-    const details = await getData(movie.id);
+    const [details] = await getData(movie.id);
     if (!details) return;
 
-    const genres = details.genres?.map((g) => g.name).join(", ") || "Unknown";
-    const runtime = details.runtime ? `${details.runtime} min` : "Unknown";
-    const rating = details.vote_average?.toFixed(1) || "N/A";
+    const genres = details.genre?.join(", ") || "Unknown";
+    const release = details.release || "Unknown";
+    const rating = details.vote?.toFixed(1) || "N/A";
 
     container.innerHTML = `
-          <div class="bg-cover bg-center rounded-lg shadow-lg overflow-hidden relative text-white p-8 transition-all duration-500 ease-in-out" style="background-image: url('${
-            movie.backcover
-          }')">
-            <div class="bg-black/60 p-6 rounded-lg flex flex-col md:flex-row gap-8 items-start">
-              <img src="${movie.poster}" alt="${
+      <div class="bg-cover bg-center rounded-lg shadow-lg overflow-hidden relative text-white p-8 transition-all duration-500 ease-in-out"
+           style="background-image: url('${movie.backcover}')">
+        <div class="bg-black/60 p-6 rounded-lg flex flex-col md:flex-row gap-8 items-start">
+          <img src="${movie.poster}" alt="${
       movie.title
     }" class="w-[180px] rounded shadow-lg">
-              <div class="flex-1 space-y-4">
-                <div class="flex justify-between items-start">
-                  <h2 class="text-3xl font-bold">${movie.title}</h2>
-                  <button class="text-3xl leading-none hover:text-white" id="closeDetails">&times;</button>
-                </div>
-                <p class="text-sm text-gray-300">Genres: <span class="text-white">${genres}</span> • Runtime: <span class="text-white">${runtime}</span> • Rating: <span class="text-white">${rating}</span></p>
-                <p class="text-sm italic text-gray-300 pt-2">Overview</p>
-                <p class="text-sm text-white">${
-                  movie.overview || "No overview available."
-                }</p>
-                <div class="mt-4">
-                  <label class="block text-sm font-medium text-white">Note:</label>
-                  <textarea class="note-input w-full p-2 border rounded resize-none text-black bg-white/80" rows="4" placeholder="Write a note...">${
-                    getNoteForMovie(movie.id) || ""
-                  }</textarea>
-                </div>
-                <button class="add-to-watchlist bg-[#01b4e4] text-white px-4 py-2 rounded hover:bg-[#0199c5] mt-4">+ Add to Watchlist</button>
-              </div>
+          <div class="flex-1 space-y-4">
+            <div class="flex justify-between items-start">
+              <h2 class="text-3xl font-bold">${movie.title}</h2>
+              <button class="text-3xl leading-none hover:text-white" id="closeDetails">&times;</button>
             </div>
+            <p class="text-sm text-gray-300">
+              Genres: <span class="text-white">${genres}</span> • 
+              Release: <span class="text-white">${release}</span> • 
+              Rating: <span class="text-white">${rating}</span>
+            </p>
+            <p class="text-sm italic text-gray-300 pt-2">Overview</p>
+            <p class="text-sm text-white">${
+              movie.overview || "No overview available."
+            }</p>
+
+            <div class="mt-4">
+              <label class="block text-sm font-medium text-white">Note:</label>
+              <textarea class="note-input w-full p-2 border rounded resize-none text-black bg-white/80"
+                        rows="4" placeholder="Write a note...">${
+                          getNoteForMovie(movie.id) || ""
+                        }</textarea>
+            </div>
+
+            <button class="add-to-watchlist bg-[#01b4e4] text-white px-4 py-2 rounded hover:bg-[#0199c5] mt-4">
+              + Add to Watchlist
+            </button>
           </div>
-        `;
+        </div>
+      </div>
+    `;
 
     container.classList.remove("max-h-0", "opacity-0");
     container.classList.add("max-h-[1000px]", "opacity-100");
@@ -144,19 +161,9 @@ export async function showMovieCard(movie) {
       saveNoteForMovie(movie.id, e.target.value);
     });
 
-    container
-      .querySelector(".add-to-watchlist")
-      .addEventListener("click", () => {
-        saveToWatchlist({
-          id: movie.id,
-          title: movie.title,
-          overview: movie.overview,
-          release_date: movie.release_date,
-          poster: movie.poster,
-          backcover: movie.backcover,
-          status: "to-watch",
-        });
-      });
+    const btn = container.querySelector(".add-to-watchlist");
+    updateWatchlistButton(movie.id, btn);
+    btn.addEventListener("click", () => toggleWatchlist(movie, btn));
 
     container.querySelector("#closeDetails").addEventListener("click", () => {
       container.classList.remove("max-h-[1000px]", "opacity-100");
@@ -171,7 +178,7 @@ export async function showMovieCard(movie) {
   }
 }
 
-export async function loadUpcoming(filter = "all") {
+async function loadUpcoming(filter = "all") {
   const container = document.querySelector("#upcomingMovies");
   container.innerHTML = "";
 
@@ -185,39 +192,52 @@ export async function loadUpcoming(filter = "all") {
 
   if (filter === "this-month") {
     filteredMovies = allMovies.filter((movie) => {
-      const date = new Date(movie.release_date);
+      const date = new Date(movie.release);
       return date.getMonth() === thisMonth;
     });
   } else if (filter === "next-month") {
     filteredMovies = allMovies.filter((movie) => {
-      const date = new Date(movie.release_date);
+      const date = new Date(movie.release);
       return date.getMonth() === nextMonth;
     });
   }
 
   filteredMovies.slice(0, 20).forEach((movie) => {
     const card = document.createElement("div");
-    card.className = "min-w-[192px] max-w-[192px] flex-shrink-0";
+    card.className =
+      "relative min-w-[192px] max-w-[192px] flex-shrink-0 cursor-pointer pb-6";
 
     card.innerHTML = `
-          <img src="${movie.poster}" alt="${movie.title}"
-            class="h-[276px] w-full object-cover rounded shadow" />
-          <h3 class="mt-2 text-xs font-semibold pl-2">${movie.title}</h3>
-          <p class="text-xs text-gray-400 pl-2">${
-            movie.release_date || "Unknown"
-          }</p>
-          <button class="add-to-watchlist bg-[#01b4e4] text-white text-xs px-3 py-1 mt-2 ml-2 rounded hover:bg-[#0199c5]">+ Add to Watchlist</button>
-        `;
+      <img src="${movie.poster}" alt="${movie.title}"
+        class="h-[276px] w-full object-cover rounded shadow" />
 
-    card.querySelector(".add-to-watchlist").addEventListener("click", () => {
-      saveToWatchlist(movie);
+      <button class="absolute top-2 right-2 w-8 h-8 flex items-center justify-center rounded-full text-white text-lg bg-gray-800 hover:bg-[#01b4e4] transition">
+        ${isInWatchlist(movie.id) ? "✓" : "+"}
+      </button>
+
+      <h3 class="mt-2 text-xs font-semibold pl-2">${movie.title}</h3>
+      <p class="text-xs text-gray-400 pl-2">${movie.release || "Unknown"}</p>
+    `;
+
+    // open details
+    card.querySelector("img").addEventListener("click", () => {
+      showMovieCard(movie);
+    });
+
+    // handle icon toggle
+    const btn = card.querySelector("button");
+    updateWatchlistButton(movie.id, btn, "icon");
+
+    btn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      toggleWatchlist(movie, btn, "icon");
     });
 
     container.appendChild(card);
   });
 }
 
-export function setupUpcomingFilters() {
+function setupUpcomingFilters() {
   document.querySelectorAll(".filter-upcoming").forEach((btn) => {
     btn.addEventListener("click", () => {
       const filter = btn.dataset.filter;
@@ -234,3 +254,15 @@ export function setupUpcomingFilters() {
     });
   });
 }
+
+// ==================== Export ====================
+export {
+  renderMainMovie,
+  renderSideMovies,
+  activateButton,
+  renderTrendingCards,
+  showMovieCard,
+  loadUpcoming,
+  setupUpcomingFilters,
+  toggleWatchIcon,
+};

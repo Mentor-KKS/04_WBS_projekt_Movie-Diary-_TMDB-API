@@ -28,6 +28,8 @@ const endpoint = {
   upcoming: "https://api.themoviedb.org/3/movie/upcoming?language=en-GB&page=1",
   // specific movie called by movie tmdb id
   "movie": `https://api.themoviedb.org/3/movie/`,
+  // search tmdb for a movie with keyword string
+  "search": `https://api.themoviedb.org/3/search/movie?query=`
 };
 
 export { endpoint,options };

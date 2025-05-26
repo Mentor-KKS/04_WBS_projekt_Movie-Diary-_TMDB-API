@@ -1,6 +1,6 @@
 // ONLY FOR TESTING !!!
 // Polyfill for sessionStorage in Node.js (for testing only)
-sessionStorage = {
+const sessionStorage = {
   store: {},
   getItem(key) {
     return this.store[key] || null;

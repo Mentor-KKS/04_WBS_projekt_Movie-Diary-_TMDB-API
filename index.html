@@ -10,82 +10,7 @@
   </head>
 
   <body>
-    <header class="max-w-6xl pt-4 mt-4 mx-auto">
-      <nav class="bg-white p-4 flex justify-between items-center shadow-md">
-        <!-- Logo -->
-        <div class="max-w-md">
-          <img
-            src="/Movie-Diary-_TMDB-API/pic/logo_b.png"
-            alt="Movie Diary Logo"
-            class="h-10"
-          />
-        </div>
-        <div class="flex items-center w-full max-w-md mx-6">
-          <form
-            id="searchForm"
-            class="flex w-full max-w-md mx-6 border border-[#01b4e4] focus:outline-none focus:ring-2 focus:ring-[#01b4e4]"
-          >
-            <!-- Search Bar -->
-            <input
-              type="text"
-              id="searchInput"
-              placeholder="Search for movie, tv show, person..."
-              class="w-full px-4 py-2 text-gray-400 font-light bg-white"
-            />
-            <button
-              type="submit"
-              class="bg-[#01b4e4] text-white px-4 py-2 hover:bg-[#029ac6] transition"
-            >
-              <span class="hidden md:inline">Search</span>
-            </button>
-          </form>
-        </div>
-
-        <div class="flex items-center space-x-6 pr-5">
-          <!-- Language Dropdown -->
-          <div class="relative">
-            <button
-              class="text-sm font-medium text-gray-700 hover:text-gray-900"
-            >
-              EN
-            </button>
-          </div>
-
-          <!-- Watchlist Icon -->
-          <a
-            href="journal.html"
-            class="flex items-center text-sm text-gray-800"
-          >
-            <span>My Watchlist</span>
-          </a>
-
-          <!-- User Avatar -->
-          <img
-            src="https://i.pravatar.cc/40"
-            alt="Avatar"
-            class="h-8 w-8 rounded-full object-cover border-2 border-gray-300"
-          />
-
-          <!-- Burger Menu -->
-          <button class="text-gray-800 focus:outline-none">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              class="h-6 w-6"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M4 6h16M4 12h16M4 18h16"
-              />
-            </svg>
-          </button>
-        </div>
-      </nav>
-    </header>
+    <header id="headerContainer"></header>
 
     <main class="max-w-6xl bg-white mx-auto mt-0">
       <section id="heroSection" class="grid grid-cols-3 bg-black text-white">
@@ -193,8 +118,6 @@
         ></div>
       </section>
     </main>
-    <footer class="bg-gray-800 text-white text-center p-4 mt-6">
-      <p>&copy; 2023 Movie Diary. All rights reserved.</p>
-    </footer>
+    <footer id="footerContainer"></footer>
   </body>
 </html>

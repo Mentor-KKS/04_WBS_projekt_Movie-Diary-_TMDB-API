@@ -8,6 +8,8 @@ import {
   setupUpcomingFilters,
 } from "./ui.js";
 import { getData } from "./api/getData.js"; // your modular API functions
+import { renderHeader } from "./header.js";
+import { renderFooter } from "./footer.js";
 
 // ==================== Hero Section ====================
 async function loadHeroSection() {
@@ -44,7 +46,11 @@ function setupTrendingButtons() {
   });
 }
 
+// ==================== Upcoming Section ====================
+
 // ==================== Init ====================
+renderHeader();
+renderFooter();
 loadHeroSection();
 activateButton("day");
 loadTrending("day");

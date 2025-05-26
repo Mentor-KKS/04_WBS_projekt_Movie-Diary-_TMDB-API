@@ -34,7 +34,7 @@ This folder contains all logic for interacting with [The Movie Database (TMDB) A
   Contains `cleanData(rawData)` to transform raw API data into a simplified format.
 
 - **getData.js**  
-  Main entry point. Exports `getData(keyword)` which handles caching and returns cleaned movie data.
+  Main entry point. Exports `getData(keyword)` which handles caching and returns cleaned movie data, and `searchData(searchString)` for searching movies by title or keywords.
 
 - **sessionStoragePolyfill.js**  
   (Optional) Provides a sessionStorage polyfill for Node.js/testing environments.
@@ -46,12 +46,12 @@ This folder contains all logic for interacting with [The Movie Database (TMDB) A
 
 ## How to Use
 
-### 1. Import the Main Function
+### 1. Import the Main Functions
 
-In your code, import `getData`:
+In your code, import `getData` and/or `searchData`:
 
 ```javascript
-import { getData } from './api/getData.js';
+import { getData, searchData } from './api/getData.js';
 ```
 
 ### 2. Fetch a List of Movies
@@ -83,7 +83,21 @@ getData("12345") // or getData(12345)
   });
 ```
 
-### 4. Data Caching
+### 4. Search for Movies by Title or Keywords
+
+```javascript
+searchData("Inception")
+  .then(movies => {
+    movies.forEach(movie => {
+      console.log("Found:", movie.title);
+    });
+  })
+  .catch(error => {
+    console.error("Search failed:", error);
+  });
+```
+
+### 5. Data Caching
 
 - Results are cached in `sessionStorage` to minimize API calls.
 - If you use Node.js, make sure to import and use `sessionStoragePolyfill.js`.
@@ -92,7 +106,7 @@ getData("12345") // or getData(12345)
 
 ## Movie Object Structure
 
-Each movie object returned by `getData` has the following structure:
+Each movie object returned by `getData` or `searchData` has the following structure:
 
 ```js
 {

@@ -1,8 +1,8 @@
-import { endpoint } from "./endpoints.js";
+import { getEndpoint } from "./endpoints.js";
 import { fetchAPI } from "./fetchApi.js";
 import { cleanData } from "./cleanData.js";
 // for testing only
-// import sessionStorage from "./sessionStoragePolyfill.js";
+// import { sessionStorage } from "./sessionStoragePolyfill.js";
 
 /**
  * Retrieves movie data for a given keyword (list) or TMDB movie ID (single movie).
@@ -15,10 +15,7 @@ import { cleanData } from "./cleanData.js";
  */
 async function getData(keyword) {
     if (!sessionStorage.getItem(keyword)) {
-        const isKnownKeyword = keyword in endpoint;
-        const endpointURL = isKnownKeyword
-            ? endpoint[keyword]
-            : endpoint["movie"] + keyword;
+        const endpointURL = getEndpoint(keyword)
 
         const rawMovieData = await fetchAPI(endpointURL);
         const cleanMovieData = cleanData(rawMovieData);

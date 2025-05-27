@@ -14,6 +14,7 @@ async function testLogGet(keyword) {
 
 
 
+
 // Test function, to console log output from searchData func
 async function testLogSearch(keyword) {
   const data = await searchData(keyword);

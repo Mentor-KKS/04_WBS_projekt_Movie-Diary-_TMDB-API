@@ -22,7 +22,7 @@ This folder contains all logic for interacting with [The Movie Database (TMDB) A
 ## File Overview
 
 - **endpoints.js**  
-  Contains all TMDB API endpoint URLs and the `options` object for fetch requests.
+  Contains all TMDB API endpoint URLs, the `options` object for fetch requests, and the `getEndpoint(keyword, query)` function for building endpoint URLs.
 
 - **fetch.js**  
   Contains `fetchAPI(url)` for making API requests.
@@ -41,6 +41,38 @@ This folder contains all logic for interacting with [The Movie Database (TMDB) A
 
 - **testing.js**  
   Example usage and test script for development.
+
+---
+
+## API Functions
+
+### `getEndpoint(keyword, query = "")`
+
+Returns the appropriate TMDB API endpoint URL based on the provided keyword and optional query.
+
+- For known keywords, constructs the corresponding endpoint URL using the current language code.
+- For `"search"`, uses the provided query string to build the search endpoint.
+- For unknown keywords, treats the keyword as a TMDB movie ID and returns the single movie endpoint.
+
+**Parameters:**
+- `keyword` (`string`): The type of data to fetch (e.g., `"discoverMovies"`, `"trendingMovieDay"`, `"search"`, or a movie ID).
+- `query` (`string`, optional): The search query string (used only for the `"search"` keyword).
+
+**Returns:**  
+- `string`: The constructed TMDB API endpoint URL.
+
+---
+
+### `searchData(searchString)`
+
+Fetches and returns cleaned movie data from TMDB based on a search query.  
+Uses the TMDB search endpoint to find movies matching the provided search string.
+
+**Parameters:**
+- `searchString` (`string`): The search query (e.g., movie title or keywords).
+
+**Returns:**  
+- `Promise<Array>`: Resolves to an array of cleaned movie objects that match the search query.
 
 ---
 

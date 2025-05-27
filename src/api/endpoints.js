@@ -19,27 +19,46 @@ const endpoint = {
     // authentication test
     //authentication: "https://api.themoviedb.org/3/authentication",
     // discover movies
-    discoverMovies: (languageCode) => `https://api.themoviedb.org/3/discover/movie?include_adult=false&include_video=false&language=${languageCode}&page=1&sort_by=popularity.desc`,
+    discoverMovies: (languageCode) =>
+        `https://api.themoviedb.org/3/discover/movie?include_adult=false&include_video=false&language=${languageCode}&page=1&sort_by=popularity.desc`,
     // trending movies of the day
-    trendingMovieDay: (languageCode) => `https://api.themoviedb.org/3/trending/movie/day?language=${languageCode}`,
+    trendingMovieDay: (languageCode) =>
+        `https://api.themoviedb.org/3/trending/movie/day?language=${languageCode}`,
     // trending movies of the week
-    trendingMovieWeek: (languageCode) => `https://api.themoviedb.org/3/trending/movie/week?language=${languageCode}`,
+    trendingMovieWeek: (languageCode) =>
+        `https://api.themoviedb.org/3/trending/movie/week?language=${languageCode}`,
     // upcoming movies
-    upcoming: (languageCode) => `https://api.themoviedb.org/3/movie/upcoming?language=${languageCode}&page=1`,
+    upcoming: (languageCode) =>
+        `https://api.themoviedb.org/3/movie/upcoming?language=${languageCode}&page=1`,
     // specific movie called by movie tmdb id
-    movie: (movieID, languageCode) => `https://api.themoviedb.org/3/movie/https://api.themoviedb.org/3/movie/${movieID}?language=${languageCode}`,
+    movie: (movieID, languageCode) =>
+        `https://api.themoviedb.org/3/movie/${movieID}?language=${languageCode}`,
     // search tmdb for a movie with keyword string
-    search: `https://api.themoviedb.org/3/search/movie?query=`,
+    search: (query, languageCode) =>
+        `https://api.themoviedb.org/3/search/movie?query=${query}&language=${languageCode}`,
 };
 
-function getEndpoint(keyword) {
+/**
+ * Returns the appropriate TMDB API endpoint URL based on the provided keyword and optional query.
+ * For known keywords, constructs the corresponding endpoint URL using the current language code.
+ * For "search", uses the provided query string to build the search endpoint.
+ * For unknown keywords, treats the keyword as a TMDB movie ID and returns the single movie endpoint.
+ *
+ * @param {string} keyword - The type of data to fetch (e.g., "discoverMovies", "trendingMovieDay", "search", or a movie ID).
+ * @param {string} [query=""] - The search query string (used only for the "search" keyword).
+ * @returns {string} The constructed TMDB API endpoint URL.
+ */
+function getEndpoint(keyword, query = "") {
     const languageCode = localStorage.getItem("languageCode") || "en-GB";
+    if (keyword === "search") {
+        return endpoint.search(query, languageCode);
+    }
     const isKnownKeyword = keyword in endpoint;
     const endpointURL = isKnownKeyword
         ? endpoint[keyword](languageCode)
         : endpoint["movie"](keyword, languageCode);
-  
-    return endpointURL
+
+    return endpointURL;
 }
 
 export { getEndpoint, options };

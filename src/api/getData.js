@@ -27,15 +27,14 @@ async function getData(keyword) {
 }
 
 /**
- * Searches for movies using a search string.
- * Fetches results from the TMDB search endpoint and returns cleaned movie data.
+ * Fetches and returns cleaned movie data from TMDB based on a search query.
+ * Uses the TMDB search endpoint to find movies matching the provided search string.
  *
  * @param {string} searchString - The search query (e.g., movie title or keywords).
- * @returns {Promise<Array>} Resolves to an array of cleaned movie objects matching the search.
+ * @returns {Promise<Array>} Resolves to an array of cleaned movie objects that match the search query.
  */
 async function searchData(searchString) {
-    const endpointURL =
-        endpoint["search"] + searchString.trim().replace(/ /g, "+");
+    const endpointURL = getEndpoint("search", searchString.trim().replace(/ /g, "+"));
 
     const rawMovieData = await fetchAPI(endpointURL);
     const cleanMovieData = cleanData(rawMovieData);

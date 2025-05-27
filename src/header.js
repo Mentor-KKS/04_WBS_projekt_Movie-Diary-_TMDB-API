@@ -31,7 +31,7 @@ export function renderHeader() {
 
                 <div class="relative">
         <button id="languageCode" class="text-sm font-medium text-gray-700 hover:text-gray-900">Language</button>
-          <div id="dropdownMenuLanguageCode" class="absolute right-0 mt-2 w-48 bg-white rounded shadow-lg py-2 hidden z-10">
+          <div id="dropdownMenuLanguageCode" class="absolute right-0 mt-2 w-48 bg-white rounded shadow-lg py-2 hidden z-10 cursor-pointer">
             <a id="english" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">English</a>
             <a id="german" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">German</a>
             <a id="spanish" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Spanish</a>

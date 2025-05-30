@@ -3,10 +3,10 @@ import {
   renderWatchlist,
   setupFilterButtons,
   showLatestMovieDetail,
-} from "./journal-ui.js";
+} from "./modules/components/journal-ui.js";
 
-import { renderHeader } from "./header.js";
-import { renderFooter } from "./footer.js";
+import { renderHeader } from "./modules/components/header.js";
+import { renderFooter } from "./modules/components/footer.js";
 
 // ==================== Init ====================
 renderHeader();

@@ -1,10 +1,25 @@
+// ==================== Imports ====================
+// Import the `handleSearch` function to handle search functionality.
 import { handleSearch } from "./search.js";
 
+// ==================== Functions ====================
+
+/**
+ * Renders the header section of the application.
+ *
+ * Responsibilities:
+ * - Dynamically creates and appends the header to the document.
+ * - Provides navigation links, a search bar, and a language selection dropdown.
+ * - Handles user interactions such as language changes, dropdown toggles, and search submissions.
+ *
+ * This module ensures that the header is consistently displayed across all pages
+ * and provides essential navigation and search functionality.
+ */
 export function renderHeader() {
-    const header = document.getElementById("headerContainer");
-    if (!header) return;
-    header.className = "max-w-6xl pt-4 mt-4 mx-auto";
-    header.innerHTML = `
+  const header = document.getElementById("headerContainer");
+  if (!header) return;
+  header.className = "max-w-6xl pt-4 mt-4 mx-auto";
+  header.innerHTML = `
     <nav class="bg-white p-4 flex justify-between items-center shadow-md z-[999]">
       <div class="max-w-md">
         <a href="index.html">
@@ -60,78 +75,57 @@ export function renderHeader() {
       </div>
     </nav>
   `;
-    document.body.prepend(header);
+  document.body.prepend(header);
 
-    // Dropdown toggle Language Code
-    document.getElementById("languageCode").addEventListener("click", () => {
-        const dropdown = document.getElementById("dropdownMenuLanguageCode");
-        dropdown.classList.toggle("hidden");
-    });
+  // ==================== Event Listeners ====================
 
-    // change language to english
-    document.getElementById("english").addEventListener("click", () => {
-        // Store language code in localStorage
-        localStorage.setItem("languageCode", "en-GB");
+  // Toggle the language dropdown menu.
+  document.getElementById("languageCode").addEventListener("click", () => {
+    const dropdown = document.getElementById("dropdownMenuLanguageCode");
+    dropdown.classList.toggle("hidden");
+  });
 
-        // Update button text
-        // const languageDisplay = document.getElementById("languageCode");
-        // languageDisplay.textContent = "EN";
+  // Language selection event listeners.
+  document
+    .getElementById("english")
+    .addEventListener("click", () => changeLanguage("en-GB"));
+  document
+    .getElementById("german")
+    .addEventListener("click", () => changeLanguage("de-DE"));
+  document
+    .getElementById("spanish")
+    .addEventListener("click", () => changeLanguage("es-ES"));
+  document
+    .getElementById("ukrainian")
+    .addEventListener("click", () => changeLanguage("uk-UA"));
 
-        // reset sessional storage, reload page
-        sessionStorage.clear();
-        location.reload();
-    });
-    // change language to german
-    document.getElementById("german").addEventListener("click", () => {
-        // Store language code in localStorage
-        localStorage.setItem("languageCode", "de-DE");
+  // Toggle the burger menu dropdown.
+  document.getElementById("burgerMenuBtn").addEventListener("click", () => {
+    const dropdown = document.getElementById("dropdownMenu");
+    dropdown.classList.toggle("hidden");
+  });
 
-        // Update button text
-        // const languageDisplay = document.getElementById("languageCode");
-        // languageDisplay.textContent = "DE";
+  // Handle search form submission.
+  const searchForm = document.getElementById("searchForm");
+  searchForm.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const query = document.getElementById("searchInput").value.trim();
+    if (query) handleSearch(query); // 🔹 Direkter Funktionsaufruf
+  });
+}
 
-        // reset sessional storage, reload page
-        sessionStorage.clear();
-        location.reload();
-    });
-    // change language to spanish
-    document.getElementById("spanish").addEventListener("click", () => {
-        // Store language code in localStorage
-        localStorage.setItem("languageCode", "es-ES");
+/**
+ * Changes the language of the application.
+ *
+ * @param {string} languageCode - The language code to set (e.g., "en-GB", "de-DE").
+ */
+export function changeLanguage(languageCode) {
+  // Store the selected language code in localStorage.
+  localStorage.setItem("languageCode", languageCode);
 
-        // Update button text
-        // const languageDisplay = document.getElementById("languageCode");
-        // languageDisplay.textContent = "ES";
+  // Clear session storage to reset cached data.
+  sessionStorage.clear();
 
-        // reset sessional storage, reload page
-        sessionStorage.clear();
-        location.reload();
-    });
-    // change language to ukrainish
-    document.getElementById("ukrainian").addEventListener("click", () => {
-        // Store language code in localStorage
-        localStorage.setItem("languageCode", "uk-UA");
-
-        // Update button text
-        // const languageDisplay = document.getElementById("languageCode");
-        // languageDisplay.textContent = "UK";
-
-        // reset sessional storage, reload page
-        sessionStorage.clear();
-        location.reload();
-    });
-
-    // Dropdown toggle
-    document.getElementById("burgerMenuBtn").addEventListener("click", () => {
-        const dropdown = document.getElementById("dropdownMenu");
-        dropdown.classList.toggle("hidden");
-    });
-
-    // Search functionality
-    const searchForm = document.getElementById("searchForm");
-    searchForm.addEventListener("submit", (e) => {
-        e.preventDefault();
-        const query = document.getElementById("searchInput").value.trim();
-        if (query) handleSearch(query); // 🔹 Direkter Funktionsaufruf
-    });
+  // Reload the page to apply the language change.
+  location.reload();
 }

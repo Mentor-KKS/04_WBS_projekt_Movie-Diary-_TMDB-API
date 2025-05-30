@@ -6,10 +6,10 @@ import {
   renderTrendingCards,
   loadUpcoming,
   setupUpcomingFilters,
-} from "./ui.js";
-import { getData } from "./api/getData.js"; // your modular API functions
-import { renderHeader } from "./header.js";
-import { renderFooter } from "./footer.js";
+} from "./modules/components/ui.js";
+import { getData } from "./modules/api/getData.js";
+import { renderHeader } from "./modules/components/header.js";
+import { renderFooter } from "./modules/components/footer.js";
 
 // ==================== Hero Section ====================
 async function loadHeroSection() {

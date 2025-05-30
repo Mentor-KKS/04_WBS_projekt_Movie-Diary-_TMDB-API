@@ -1,3 +1,14 @@
+/**
+ * Renders the footer section of the application.
+ *
+ * Responsibilities:
+ * - Creates a footer element dynamically and appends it to the document body.
+ * - Displays attribution for the TMDB API, including a logo and a disclaimer.
+ * - Provides copyright information for the Movie Diary application.
+ *
+ * This module ensures that the footer is consistently displayed across all pages
+ * and adheres to TMDB's attribution requirements.
+ */
 export function renderFooter() {
   const footer = document.createElement("footer");
   footer.className = "bg-gray-800 text-white text-center p-6 mt-10";
@@ -11,6 +22,6 @@ export function renderFooter() {
         <p class="text-xs text-gray-500 mt-2">&copy; 2025 Movie Diary. All rights reserved.</p>
       </div>
     `;
-
+  // Append the footer to the document body.
   document.body.appendChild(footer);
 }

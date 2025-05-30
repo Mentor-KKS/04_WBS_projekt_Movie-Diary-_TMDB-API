@@ -1,7 +1,19 @@
-import { getNoteForMovie, saveNoteForMovie } from "./storage.js";
+// ==================== Imports ====================
+import { getNoteForMovie, saveNoteForMovie } from "../utils/storage.js";
 
+// ==================== Variables ====================
+// Tracks the current filter for the watchlist (e.g., "all", "to-watch", "watched").
 let currentFilter = "all";
 
+// ==================== Functions ====================
+
+/**
+ * Displays the details of the latest movie added to the watchlist.
+ *
+ * Responsibilities:
+ * - Fetches the watchlist from localStorage.
+ * - Renders the last movie in the watchlist using the `renderMovieCard` function.
+ */
 function showLatestMovieDetail() {
   const stored = localStorage.getItem("watchlist");
   const movies = stored ? JSON.parse(stored) : [];
@@ -11,6 +23,15 @@ function showLatestMovieDetail() {
   renderMovieCard(lastMovie, "journalMovieCardView");
 }
 
+/**
+ * Renders the watchlist based on the current filter.
+ *
+ * Responsibilities:
+ * - Fetches the watchlist from localStorage.
+ * - Filters the movies based on the current filter (e.g., "to-watch", "watched").
+ * - Dynamically creates and appends movie cards to the watchlist container.
+ * - Displays a message if the watchlist is empty.
+ */
 function renderWatchlist() {
   const container = document.getElementById("watchlistContainer");
   container.innerHTML = "";
@@ -50,6 +71,13 @@ function renderWatchlist() {
   });
 }
 
+/**
+ * Sets up filter buttons for the watchlist.
+ *
+ * Responsibilities:
+ * - Adds event listeners to the "To-Watch" and "Watched" buttons.
+ * - Updates the current filter and re-renders the watchlist when a button is clicked.
+ */
 function setupFilterButtons() {
   const btnToWatch = document.getElementById("btnToWatch");
   const btnWatched = document.getElementById("btnWatched");
@@ -69,6 +97,11 @@ function setupFilterButtons() {
   setActiveFilter("to-watch");
 }
 
+/**
+ * Updates the active filter button's styling.
+ *
+ * @param {string} status - The current filter status ("to-watch" or "watched").
+ */
 function setActiveFilter(status) {
   const btnToWatch = document.getElementById("btnToWatch");
   const btnWatched = document.getElementById("btnWatched");
@@ -86,6 +119,12 @@ function setActiveFilter(status) {
   }
 }
 
+/**
+ * Renders the details of a selected movie in a specified container.
+ *
+ * @param {Object} movie - The movie object to render.
+ * @param {string} containerId - The ID of the container to render the movie details in.
+ */
 function renderMovieCard(movie, containerId) {
   const container = document.getElementById(containerId);
   if (!container) return;
@@ -178,6 +217,11 @@ function renderMovieCard(movie, containerId) {
   });
 }
 
+/**
+ * Toggles the status of a movie (e.g., "to-watch" or "watched").
+ *
+ * @param {number} id - The ID of the movie to toggle.
+ */
 function toggleMovieStatus(id) {
   const stored = localStorage.getItem("watchlist");
   let list = stored ? JSON.parse(stored) : [];
@@ -190,6 +234,11 @@ function toggleMovieStatus(id) {
   }
 }
 
+/**
+ * Removes a movie from the watchlist.
+ *
+ * @param {number} id - The ID of the movie to remove.
+ */
 function removeFromWatchlist(id) {
   const stored = localStorage.getItem("watchlist");
   let list = stored ? JSON.parse(stored) : [];
@@ -198,5 +247,5 @@ function removeFromWatchlist(id) {
   renderWatchlist();
 }
 
-// export
+// ==================== Exports ====================
 export { showLatestMovieDetail, renderWatchlist, setupFilterButtons };

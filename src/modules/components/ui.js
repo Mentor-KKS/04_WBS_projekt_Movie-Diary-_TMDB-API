@@ -5,12 +5,23 @@ import {
   isInWatchlist,
   getNoteForMovie,
   saveNoteForMovie,
-} from "./storage.js";
-import { getData } from "./api/getData.js";
+} from "../utils/storage.js";
+import { getData } from "../api/getData.js";
 
+// ==================== Variables ====================
 let currentlyShownMovieId = null;
 
-// ==================== UI Elements ====================
+// ==================== Functions ====================
+
+/**
+ * Renders the main movie in the hero section.
+ *
+ * Responsibilities:
+ * - Updates the background image, title, and overview of the main movie.
+ * - Handles the "Add to Watchlist" button functionality.
+ *
+ * @param {Object} movie - The movie object to render.
+ */
 
 function renderMainMovie(movie) {
   const mainMovie = document.querySelector("#mainMovie");
@@ -18,21 +29,34 @@ function renderMainMovie(movie) {
   const overviewEl = document.querySelector("#mainOverview");
   const addBtn = document.querySelector("#addToWatchlistBtn");
 
+  // Update the hero section with the movie's details.
   mainMovie.style.backgroundImage = `url(${movie.backcover})`;
   titleEl.textContent = movie.title;
   overviewEl.textContent = movie.overview;
 
+  // Replace the "Add to Watchlist" button to reset event listeners.
   const newBtn = addBtn.cloneNode(true);
   addBtn.parentNode.replaceChild(newBtn, addBtn);
 
+  // Update the button state and add event listener for toggling the watchlist.
   updateWatchlistButton(movie.id, newBtn);
   newBtn.addEventListener("click", () => toggleWatchlist(movie, newBtn));
 }
 
+/**
+ * Renders the side movies in the hero section.
+ *
+ * Responsibilities:
+ * - Displays a list of clickable movie thumbnails.
+ * - Updates the main movie when a thumbnail is clicked.
+ *
+ * @param {Array} movies - Array of movie objects to render.
+ */
 function renderSideMovies(movies) {
   const sideContainer = document.querySelector("#sideMovies");
   sideContainer.innerHTML = "";
 
+  // Create and append thumbnails for each movie.
   movies.forEach((movie) => {
     const thumb = document.createElement("div");
     thumb.className =
@@ -40,11 +64,20 @@ function renderSideMovies(movies) {
     thumb.style.backgroundImage = `url(${movie.poster})`;
     thumb.title = movie.title;
 
+    // Update the main movie when a thumbnail is clicked.
     thumb.addEventListener("click", () => renderMainMovie(movie));
     sideContainer.appendChild(thumb);
   });
 }
 
+/**
+ * Activates the trending filter button (e.g., "Today" or "This Week").
+ *
+ * Responsibilities:
+ * - Updates the styling of the active button.
+ *
+ * @param {string} period - The selected period ("day" or "week").
+ */
 function activateButton(period) {
   const btnToday = document.querySelector("#btnToday");
   const btnWeek = document.querySelector("#btnWeek");
@@ -62,10 +95,20 @@ function activateButton(period) {
   }
 }
 
+/**
+ * Renders trending movie cards in the trending section.
+ *
+ * Responsibilities:
+ * - Dynamically creates and appends movie cards to the trending container.
+ * - Handles click events to display detailed movie information.
+ *
+ * @param {Array} movies - Array of movie objects to render.
+ */
 function renderTrendingCards(movies) {
   const trendingContainer = document.querySelector("#trendingMovies");
   trendingContainer.innerHTML = "";
 
+  // Create and append cards for each trending movie.
   movies.forEach((movie) => {
     const card = document.createElement("div");
     card.className =
@@ -85,6 +128,15 @@ function renderTrendingCards(movies) {
   });
 }
 
+/**
+ * Toggles the watchlist icon state for a movie.
+ *
+ * Responsibilities:
+ * - Updates the icon to indicate whether the movie is in the watchlist.
+ *
+ * @param {HTMLElement} button - The button element to update.
+ * @param {Object} movie - The movie object.
+ */
 function toggleWatchIcon(button, movie) {
   const isSaved = isInWatchlist(movie.id);
   button.innerHTML = isSaved ? "✓" : "+";
@@ -92,6 +144,16 @@ function toggleWatchIcon(button, movie) {
   button.classList.add(isSaved ? "bg-[#90cea1]" : "bg-[#01b4e4]");
 }
 
+/**
+ * Displays detailed information about a selected movie.
+ *
+ * Responsibilities:
+ * - Fetches additional movie details from the API.
+ * - Dynamically creates and displays a detailed movie card.
+ * - Handles user interactions such as closing the card or adding notes.
+ *
+ * @param {Object} movie - The movie object to display.
+ */
 async function showMovieCard(movie) {
   const container = document.querySelector("#movieCardView");
 
@@ -178,6 +240,16 @@ async function showMovieCard(movie) {
   }
 }
 
+/**
+ * Loads and renders upcoming movies based on a filter.
+ *
+ * Responsibilities:
+ * - Fetches upcoming movies from the API.
+ * - Filters movies by release date (e.g., "this-month", "next-month").
+ * - Dynamically creates and appends movie cards to the upcoming section.
+ *
+ * @param {string} filter - The filter to apply ("all", "this-month", "next-month").
+ */
 async function loadUpcoming(filter = "all") {
   const container = document.querySelector("#upcomingMovies");
   container.innerHTML = "";
@@ -237,6 +309,13 @@ async function loadUpcoming(filter = "all") {
   });
 }
 
+/**
+ * Sets up filter buttons for the upcoming movies section.
+ *
+ * Responsibilities:
+ * - Adds event listeners to filter buttons.
+ * - Updates the active filter button's styling and reloads the movies.
+ */
 function setupUpcomingFilters() {
   document.querySelectorAll(".filter-upcoming").forEach((btn) => {
     btn.addEventListener("click", () => {
